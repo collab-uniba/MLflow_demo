@@ -9,15 +9,14 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 
+# enable autologging for each supported library you have installed as soon as you import it
+mlflow.autolog()
+
 # ================ #
 # DATA PREPARATION #
 # ================ #
 
-# Start mlflow run
-mlflow.start_run()
-
 random_state = 0
-mlflow.log_param("random_state_dataPrep", random_state)
 
 # Read datasets from csv files
 input_folder_path = Path("data")
@@ -69,13 +68,7 @@ print("Data preparation done.")
 algorithm_type = "RandomForestRegressor"
 max_depth = 100
 random_state = 0
-mlflow.log_params(
-    {
-        "algorithm_type": algorithm_type,
-        "max_depth": max_depth,
-        "random_state_training": random_state,
-    }
-)
+n_estimators = 150
 
 # Specify the training algorithm
 if algorithm_type == "DecisionTreeRegressor":
@@ -87,7 +80,7 @@ else:
 
 # For the sake of reproducibility, I set the `random_state`
 random_state = 0
-iowa_model = algorithm(random_state=random_state, max_depth=max_depth)
+iowa_model = algorithm(random_state=random_state, max_depth=max_depth, n_estimators=n_estimators)
 
 # Then I fit the model to the training data
 iowa_model.fit(X_train, y_train)
@@ -100,8 +93,6 @@ model_path.mkdir(parents=True, exist_ok=True)
 model_path = model_path / model_name
 with open(model_path, "wb") as file:
     pickle.dump(iowa_model, file)
-
-mlflow.log_artifact(str(model_path))
 
 print("Model training done.")
 
@@ -117,16 +108,8 @@ val_predictions = iowa_model.predict(X_valid)
 val_mae = mean_absolute_error(y_valid, val_predictions)
 val_mean_squared_error = mean_squared_error(y_valid, val_predictions)
 
-mlflow.log_metrics(
-    {
-        "val_mae": val_mae,
-        "val_mean_squared_error": val_mean_squared_error,
-    }
-)
-
 print("Model evaluation done.")
 print("\tMAE: {:.2f}".format(val_mae))
 print("\tMean Squared Error: {:.2f}".format(val_mean_squared_error))
 
-# End mlflow run
-mlflow.end_run()
+autolog_run = mlflow.last_active_run()
