@@ -13,6 +13,8 @@ from sklearn.tree import DecisionTreeRegressor
 # DATA PREPARATION #
 # ================ #
 
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+
 # Start mlflow run
 mlflow.start_run()
 
@@ -102,6 +104,7 @@ with open(model_path, "wb") as file:
     pickle.dump(iowa_model, file)
 
 mlflow.log_artifact(str(model_path))
+mlflow.sklearn.log_model(iowa_model, "Iowa Model")
 
 print("Model training done.")
 
