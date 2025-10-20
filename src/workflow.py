@@ -13,8 +13,6 @@ from sklearn.tree import DecisionTreeRegressor
 # DATA PREPARATION #
 # ================ #
 
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
-
 # Start mlflow run
 mlflow.start_run()
 
